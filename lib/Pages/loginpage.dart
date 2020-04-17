@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chatapp/ModelClasses/userInfo.dart';
 import 'package:chatapp/Others/PhoneNumAuthService.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,7 +19,8 @@ class _LoginPageState extends State<LoginPage> {
   bool isCountryCodeProper=true;
 
   _verificationComplete(AuthCredential authCredential, BuildContext context) {
-    PhoneAuthService().signIn(authCredential,context);
+    var obj=new Info(username: username,phoneNo:phoneNum,assetImg: "assets/images/"+lis[val&6],imgFile: imgFile);
+    PhoneAuthService().signIn(authCredential,context,obj);
     //navigateToHomeScreen(context);
   }
 
@@ -61,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 
-  File imgPath;
+  File imgFile;
   final formKey = GlobalKey<FormState>();
   SharedPreferences pref;
   bool isProfileCreated = false;
@@ -78,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
   double width;
 
   Widget img() {
-    if(imgPath==null){
+    if(imgFile==null){
       return Container(
         width: 250,
         height: 250,
@@ -99,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
         child: AnimatedSwitcher(
           duration: Duration(milliseconds: 400),
           child: Image.file(
-            imgPath,
+            imgFile,
           ),
         ),
       );
@@ -113,16 +115,17 @@ class _LoginPageState extends State<LoginPage> {
   uploadGallery() async{
     var img=await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
-      imgPath=img;
+      imgFile=img;
     });
   }
 
   uploadCamera() async{
     var img=await ImagePicker.pickImage(source: ImageSource.camera);
     setState(() {
-      imgPath=img;
+      imgFile=img;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Visibility(
-                visible: imgPath==null,
+                visible: imgFile==null,
                 child: FlatButton(
                   onPressed: () {
                     setState(() {
@@ -180,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text("Delete"),
                     onPressed: (){
                       setState(() {
-                        imgPath=null;
+                        imgFile=null;
                       });
                     },
                   ),
@@ -271,8 +274,9 @@ class _LoginPageState extends State<LoginPage> {
                           SizedBox(
                             child: Text("\n\n"),
                           ),
-                          Text("Enter the code you received:"),
+                          Text("Enter the code you received:",style: TextStyle(color: Colors.lightBlueAccent),),
                           TextField(
+                            style: TextStyle(color: Colors.white),
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: "Enter Code",
@@ -289,11 +293,13 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           Center(
                             child: RaisedButton(
-                                child: Text("Verify Code"),
+                                child: Text("Verify Code",style: TextStyle(color: Colors.lightBlueAccent),),
                                 color: Colors.greenAccent,
                                 onPressed: () {
-                                  if (smsCode.length==6)
-                                    PhoneAuthService().signInWithOTP(smsCode, verId,context);
+                                  if (smsCode.length==6){
+                                    var obj=new Info(username: username,phoneNo:phoneNum,assetImg: "assets/images/"+lis[val&6],imgFile: imgFile);
+                                    PhoneAuthService().signInWithOTP(smsCode, verId,context,obj);
+                                  }
                                   else
                                     Scaffold.of(context).showSnackBar(SnackBar(content: Text("OTP seems to bee wrong"),duration: Duration(milliseconds: 700)));
                                 }
