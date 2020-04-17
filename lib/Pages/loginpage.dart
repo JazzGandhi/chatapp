@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:chatapp/Others/PhoneNumAuthService.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -56,9 +60,74 @@ class _LoginPageState extends State<LoginPage> {
             _smsCodeSent(verificationId, [code]));
   }
 
+
+  File imgPath;
+  final formKey = GlobalKey<FormState>();
+  SharedPreferences pref;
+  bool isProfileCreated = false;
+  String username;
+  final lis = [
+    "profile1.png",
+    "profile2.png",
+    "profile3.png",
+    "profile4.png",
+    "profile5.png",
+    "profile6.png"
+  ];
+  int val = 0;
+  double width;
+
+  Widget img() {
+    if(imgPath==null){
+      return Container(
+        width: 250,
+        height: 250,
+        alignment: Alignment.center,
+        child: AnimatedSwitcher(
+          duration: Duration(milliseconds: 400),
+          child: Image.asset(
+            "assets/images/" + lis[val % 6],
+          ) ,
+        ),
+      );
+    }
+    else{
+      return Container(
+        width: 250,
+        height: 250,
+        alignment: Alignment.center,
+        child: AnimatedSwitcher(
+          duration: Duration(milliseconds: 400),
+          child: Image.file(
+            imgPath,
+          ),
+        ),
+      );
+    }
+  }
+
+  addToDb() {
+    print(username);
+  }
+
+  uploadGallery() async{
+    var img=await ImagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      imgPath=img;
+    });
+  }
+
+  uploadCamera() async{
+    var img=await ImagePicker.pickImage(source: ImageSource.camera);
+    setState(() {
+      imgPath=img;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color.fromRGBO(40, 49, 59, 1),
         appBar: AppBar(
           //rgb(223,239,220)
           backgroundColor: Color.fromRGBO(205, 241, 248, 1),
@@ -67,18 +136,67 @@ class _LoginPageState extends State<LoginPage> {
         ),
         body: Container(
           //rgb(205,241,248)rgb(196,196,233)
-          color: Color.fromRGBO(235, 245, 255, 1) ,
           margin: EdgeInsets.only(left: 0,right: 10),
           padding: EdgeInsets.all(10),
           child: Column(
             children: <Widget>[
-              SizedBox(
-                height: 10,
+              Text("Your Profile:", style: TextStyle(
+                  fontSize: 25, color: Color.fromRGBO(114, 133, 165, 1)),),
+              Flexible(
+                child: FractionallySizedBox(
+                  heightFactor: 0.1,
+                  child: Text(""),
+                ),
+              ),
+              Flexible(
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 500),
+                  child: img(),
+                ),
+              ),
+              Visibility(
+                visible: imgPath==null,
+                child: FlatButton(
+                  onPressed: () {
+                    setState(() {
+                      val += 1;
+                    });
+                  },
+                  child: Text("CHANGE",style: TextStyle(color: Colors.white),),
+                ),
+              ),
+              ButtonBar(
+                children: <Widget>[
+                  FlatButton(
+                    child: Text("Select from Gallery"),
+                    onPressed: ()=>uploadGallery(),
+                  ),
+                  FlatButton(
+                    child: Text("Open Camera"),
+                    onPressed: ()=>uploadCamera(),
+                  ),
+                  RaisedButton(
+                    color: Colors.lightBlueAccent,
+                    child: Text("Delete"),
+                    onPressed: (){
+                      setState(() {
+                        imgPath=null;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              Flexible(
+                child: FractionallySizedBox(
+                  heightFactor: 0.1,
+                ),
               ),
               Form(
                 key: formkey,
                 child: TextFormField(
+                  style: TextStyle(color: Colors.lightBlueAccent),
                   decoration: InputDecoration(
+                      hintStyle: TextStyle(color: Colors.lightBlueAccent),
                       labelText: "Phone number",
                       hintText: "Enter country code and number",
                       border: OutlineInputBorder(
@@ -127,11 +245,11 @@ class _LoginPageState extends State<LoginPage> {
                 maintainSize: true,
                 maintainAnimation: true,
                 maintainState: true,
-                child: Text(error,style: TextStyle(color: Colors.red),),
+                child: Text(error,style: TextStyle(color: Colors.lightBlueAccent),),
               ),
               RaisedButton(
                 child: Text("Verify number"),
-                color: Colors.lightGreenAccent,
+                color: Colors.green,
                 onPressed: () {
                   //print("YES BITCHES" + phoneNum);
                   if(formkey.currentState.validate())

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart';
+
 class ContactPermission extends StatefulWidget {
   @override
   _ContactPermissionState createState() => _ContactPermissionState();
@@ -15,33 +16,32 @@ class _ContactPermissionState extends State<ContactPermission> {
         permission != PermissionStatus.neverAskAgain &&
         permission != PermissionStatus.unknown) {
       final Map<PermissionGroup, PermissionStatus> permissionStatus =
-      await PermissionHandler()
-          .requestPermissions([PermissionGroup.contacts]);
+          await PermissionHandler()
+              .requestPermissions([PermissionGroup.contacts]);
       return permissionStatus[PermissionGroup.contacts];
     } else if (permission == PermissionStatus.granted)
       return PermissionStatus.granted;
   }
 
   _checkPermission() async {
-    final PermissionStatus permissionStatus =
-    await _getPermission();
+    final PermissionStatus permissionStatus = await _getPermission();
     if (permissionStatus == PermissionStatus.granted) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => ContactList()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => ContactList()));
     } else {
       showDialog(
           context: context,
           builder: (BuildContext context) => AlertDialog(
-            title: Text('Permissions error'),
-            content: Text(
-                'Please enable contacts access from system settings'),
-            actions: <Widget>[
-              CupertinoDialogAction(
-                child: Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            ],
-          ));
+                title: Text('Permissions error'),
+                content:
+                    Text('Please enable contacts access from system settings'),
+                actions: <Widget>[
+                  CupertinoDialogAction(
+                    child: Text('OK'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  )
+                ],
+              ));
     }
   }
 
@@ -94,24 +94,28 @@ class _ContactListState extends State<ContactList> {
       ),
       body: _contacts != null
           ? ListView.builder(
-          itemCount: _contacts?.length ?? 0,
-          itemBuilder: (BuildContext context, int index) {
-            Contact contact = _contacts?.elementAt(index);
-            return ListTile(
-              contentPadding:
-              EdgeInsets.symmetric(vertical: 2, horizontal: 18),
-              leading: (contact.avatar != null && contact.avatar.isNotEmpty)
-                  ? CircleAvatar(
-                backgroundImage: MemoryImage(contact.avatar),
-              )
-                  : CircleAvatar(
-                child: Text(contact.initials()),
-                backgroundColor: Theme.of(context).accentColor,
-              ),
-              title: Text(contact.displayName ?? ''),
-            );
-          })
-          : Center(child: const CircularProgressIndicator()),
+              itemCount: _contacts?.length ?? 0,
+              itemBuilder: (BuildContext context, int index) {
+                Contact contact = _contacts?.elementAt(index);
+                return ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 2, horizontal: 18),
+                  leading: (contact.avatar != null && contact.avatar.isNotEmpty)
+                      ? CircleAvatar(
+                          backgroundImage: MemoryImage(contact.avatar),
+                        )
+                      : CircleAvatar(
+                          child: Text(contact.initials()),
+                          backgroundColor: Theme.of(context).accentColor,
+                        ),
+                  title: Text(contact.displayName ?? ''),
+                );
+              })
+          : Container(
+              width: 200,
+              height: 200,
+              child: Center(child: const CircularProgressIndicator()),
+            ),
     );
   }
 }
