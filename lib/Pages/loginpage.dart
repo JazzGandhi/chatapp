@@ -30,12 +30,13 @@ class _LoginPageState extends State<LoginPage> {
     print("verID:"+verId);
   }
 
-  _verificationFailed(AuthException authException, BuildContext context) {
-    final snackBar = SnackBar(
-        content:
-        Text("Exception!! message:" + authException.message.toString()));
-    Scaffold.of(context).showSnackBar(snackBar);
-  }
+  _verificationFailed(authException, BuildContext context) {
+    // final snackBar = SnackBar(
+    //     content:
+    //     Text("Exception!! message:" + authException.message.toString()));
+    // Scaffold.of(context).showSnackBar(snackBar);
+    print(authException.message.toString());
+   }
 
   _codeAutoRetrievalTimeout(String verificationId) {
     // set the verification code so that we can use it to log the user in

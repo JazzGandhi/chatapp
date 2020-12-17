@@ -8,7 +8,7 @@ class PhoneAuthService{
   checkIfLoggedIn(){
 
     return StreamBuilder(
-      stream: auth.onAuthStateChanged,
+      stream: auth.authStateChanges(),
       builder: (context,snapshot){
         if(snapshot.hasData)
           return HomePage();
@@ -22,7 +22,7 @@ class PhoneAuthService{
     auth.signOut();
   }
   signIn(AuthCredential cred,context,Info obj){
-      auth.signInWithCredential(cred).then((AuthResult val){
+      auth.signInWithCredential(cred).then((UserCredential val){
         if(val.user!=null){
           obj.uploadDataToDB();
           Navigator.push(
@@ -40,6 +40,6 @@ class PhoneAuthService{
   signInWithOTP(smsCode,verificationId,context,Info obj){
     print("PRINTING VERID "+verificationId);
     if(verificationId!="")
-      signIn(PhoneAuthProvider.getCredential(verificationId: verificationId, smsCode: smsCode),context,obj);
+      signIn(PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode),context,obj);
   }
 }

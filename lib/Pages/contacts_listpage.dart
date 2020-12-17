@@ -72,9 +72,14 @@ class ContactList extends StatefulWidget {
 
 class _ContactListState extends State<ContactList> {
   Iterable<Contact> _contacts;
-
+  ScrollController _scrollController=new ScrollController();
   _getContacts() async {
-    final Iterable<Contact> contacts = await ContactsService.getContacts();
+    final Iterable<Contact> contacts = await ContactsService.getContacts();WidgetsBinding.instance
+          .addPostFrameCallback((_){
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(0.0);
+        }
+      });
     setState(() {
       _contacts = contacts;
     });
@@ -94,23 +99,25 @@ class _ContactListState extends State<ContactList> {
       ),
       body: _contacts != null
           ? ListView.builder(
-              itemCount: _contacts?.length ?? 0,
-              itemBuilder: (BuildContext context, int index) {
-                Contact contact = _contacts?.elementAt(index);
-                return ListTile(
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 2, horizontal: 18),
-                  leading: (contact.avatar != null && contact.avatar.isNotEmpty)
-                      ? CircleAvatar(
-                          backgroundImage: MemoryImage(contact.avatar),
-                        )
-                      : CircleAvatar(
-                          child: Text(contact.initials()),
-                          backgroundColor: Theme.of(context).accentColor,
-                        ),
-                  title: Text(contact.displayName ?? ''),
-                );
-              })
+            controller: _scrollController,
+            reverse: true,
+            itemCount: _contacts?.length ?? 0,
+            itemBuilder: (BuildContext context, int index) {
+              Contact contact = _contacts?.elementAt(index);
+              return ListTile(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 2, horizontal: 18),
+                leading: (contact.avatar != null && contact.avatar.isNotEmpty)
+                    ? CircleAvatar(
+                        backgroundImage: MemoryImage(contact.avatar),
+                      )
+                    : CircleAvatar(
+                        child: Text(contact.initials()),
+                        backgroundColor: Theme.of(context).accentColor,
+                      ),
+                title: Text(contact.displayName ?? ''),
+              );
+            })
           : Container(
               width: 200,
               height: 200,

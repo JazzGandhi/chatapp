@@ -19,22 +19,26 @@ class Info{
   final String imgurlData="imgURL";
   uploadDataToDB() async{
       if(imgFile!=null){
-        StorageReference ref= FirebaseStorage.instance.ref().child("profile/$username");
-        StorageUploadTask upload=ref.putFile(imgFile);
-        StorageTaskSnapshot snap=await upload.onComplete;
-        url=await snap.ref.getDownloadURL();
-        imgFile=null;//database khaali rakhna hai mereko
-        var docRef= Firestore.instance.collection("USERS").document();
-        docID=docRef.documentID;
-        await docRef.setData({ userData:username , userPhoneData:phoneNo , docData:docID , assetImgData:null , imgurlData:url } );
-        SharedPreferences pref=await SharedPreferences.getInstance();
-        pref.setString(docData, docID);//so i can access user data from firestore anywhere in app
+        try{
+          Reference ref= FirebaseStorage.instance.ref().child("profile/$username");
+          TaskSnapshot upload= await ref.putFile(imgFile);
+          url=await upload.ref.getDownloadURL();
+          imgFile=null;//database khaali rakhna hai mereko
+          var docRef= FirebaseFirestore.instance.collection("USERS").doc();
+          docID=docRef.id;
+          await docRef.set({ userData:username , userPhoneData:phoneNo , docData:docID , assetImgData:null , imgurlData:url } );
+          SharedPreferences pref=await SharedPreferences.getInstance();
+          pref.setString(docData, docID);//so i can access user data from firestore anywhere in app
+        }
+        on Exception catch(e){
+          print(e);
+        }
       }
       else{
         //asset img dp rakhna hai baap ko
-        var docRef= Firestore.instance.collection("USERS").document();
-        docID=docRef.documentID;
-        await docRef.setData({ userData:username , userPhoneData:phoneNo , docData:docID , assetImgData: assetImg , imgurlData:null } );
+        var docRef= FirebaseFirestore.instance.collection("USERS").doc();
+        docID=docRef.id;
+        await docRef.set({ userData:username , userPhoneData:phoneNo , docData:docID , assetImgData: assetImg , imgurlData:null } );
         SharedPreferences pref=await SharedPreferences.getInstance();
         pref.setString(docData, docID);
       }
